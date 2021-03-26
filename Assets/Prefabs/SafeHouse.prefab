@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8918186694237324627
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1512605187570667893}
+  - component: {fileID: 4365715433333317939}
+  m_Layer: 0
+  m_Name: SafeHouse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1512605187570667893
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8918186694237324627}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.026881933, y: 1.0064528, z: 0.3665942}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4365715433333317939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8918186694237324627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52ef616b9e41b884284ec625b5e59862, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chamberObjects: []
+  type: safeHouse
+  areNeighborsDescribed: 0
+  areNeighborsGenerated: 0
+  isGenerated: 0
+  neighborChambers: []
+  connectedHallways: []
+  sizeX: 0
+  sizeZ: 0
+  entranceBlocks: []
+  blockPrefab: {fileID: 3396395029021117645, guid: 4e65b261ad40b1349bd023def3f5d034,
+    type: 3}
+  wallPrefab: {fileID: 0}
+  floorPrefab: {fileID: 0}
+  owner: {fileID: 0}
