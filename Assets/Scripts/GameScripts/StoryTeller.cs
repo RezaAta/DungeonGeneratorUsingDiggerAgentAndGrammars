@@ -37,31 +37,35 @@ public class StoryTeller : MonoBehaviour
     public void DetermineChambersTypes(Tuple<HumanoidAgent, Chamber> agentAndChamber)
     {
         this.DetermineDifficulty(agentAndChamber.Item1);
+        
         Chamber PreviousChamber = agentAndChamber.Item1.statusUpdater.locationLog[1].GetComponent<Chamber>();
+
+        Chamber anticipatedChamber = agentAndChamber.Item2;
 
         //string anticipatedCurrentChamberType = agentAndChamber.Item2.type;
 
-        if (agentAndChamber.Item2 is SafeHouseChamber)
-            this.AddChambers(agentAndChamber.Item2, GameSystem.instance.treasureChamberPrefab);
+        if (anticipatedChamber is SafeHouseChamber)
+            this.AddChambers(anticipatedChamber, GameSystem.instance.treasureChamberPrefab);
         
+        else if (anticipatedChamber is TreasureChamber)
+            this.GenerateTreasureChamberNeighborsBasedOnDifficulty(anticipatedChamber);
 
-        else if (agentAndChamber.Item2 is TreasureChamber)
-            this.GenerateTreasureChamberNeighborsBasedOnDifficulty(agentAndChamber.Item2);
+        else if (anticipatedChamber is BossChamber)
+            this.GenerateBossChamberNeighborsBasedOnDifficulty(anticipatedChamber);
 
-        else if (agentAndChamber.Item2 is BossChamber)
-            this.GenerateBossChamberNeighborsBasedOnDifficulty(agentAndChamber.Item2);
+        else if (anticipatedChamber is NormalChamber)
+            this.GenerateNormalChamberNeighborsBasedOnDifficulty(anticipatedChamber);
 
-        else if (agentAndChamber.Item2 is NormalChamber)
-            this.GenerateNormalChamberNeighborsBasedOnDifficulty(agentAndChamber.Item2);
+        else if (anticipatedChamber is MercenaryCamp)
+            this.GenerateMercenaryCampNeighborsBasedOnDifficulty(anticipatedChamber);
 
-        else if (agentAndChamber.Item2 is MercenaryCamp)
-            this.GenerateMercenaryCampNeighborsBasedOnDifficulty(agentAndChamber.Item2);
-
-        else if (agentAndChamber.Item2 is TeleportationChamber)
+        else if (anticipatedChamber is TeleportationChamber)
         {
             int numberOfNormalChambers = random.Next(1,4);//First intended value was 1,5
-            this.AddChambers(agentAndChamber.Item2, GameSystem.instance.normalChamberPrefab,numberOfNormalChambers);
+            this.AddChambers(anticipatedChamber, GameSystem.instance.normalChamberPrefab,numberOfNormalChambers);
         }
+
+        anticipatedChamber.areNeighborsDescribed = true;
     }
 
     public void DetermineDifficulty(HumanoidAgent agent)
@@ -105,28 +109,41 @@ public class StoryTeller : MonoBehaviour
     public void GenerateBossChamberNeighborsBasedOnDifficulty(Chamber anticipatedChamber)
     {
         int numberOfNormalChambers;
+        int randomNumberOfPossibleNeighborHoods;
         if (neighborsStructureDifficulty == "hard")
         {
-            this.AddChambers(anticipatedChamber,GameSystem.instance.treasureChamberPrefab);
             numberOfNormalChambers = random.Next(1,4);
-            this.AddChambers(allNeighborChambers.Last(),GameSystem.instance.normalChamberPrefab,numberOfNormalChambers);
+            this.AddChambers(anticipatedChamber, GameSystem.instance.normalChamberPrefab, numberOfNormalChambers);
+            this.AddNextChambersToANumberOfPreviousChambers(numberOfNormalChambers, GameSystem.instance.treasureChamberPrefab);
         }
         else if (neighborsStructureDifficulty == "normal")
         {
             numberOfNormalChambers = random.Next(1, 3);
             this.AddChambers(anticipatedChamber, GameSystem.instance.normalChamberPrefab, numberOfNormalChambers);
+            
             this.AddNextChambersToANumberOfPreviousChambersRandomly(numberOfNormalChambers,GameSystem.instance.treasureChamberPrefab);
-            if (numberOfNormalChambers == 1)
-                this.AddChambers(this.allNeighborChambers.Last(), GameSystem.instance.teleportationChamberPrefab);
+
+            this.AddChambers(this.allNeighborChambers.Last(), GameSystem.instance.teleportationChamberPrefab);
         }
         else if (neighborsStructureDifficulty == "easy")
         {
-            this.AddChambers(anticipatedChamber, GameSystem.instance.teleportationChamberPrefab);
+            randomNumberOfPossibleNeighborHoods = random.Next(0, 100);
+
+            if (randomNumberOfPossibleNeighborHoods <= 80)
+                this.AddChambers(anticipatedChamber, GameSystem.instance.teleportationChamberPrefab);
+            
+            else if (randomNumberOfPossibleNeighborHoods >= 81)
+            {
+                numberOfNormalChambers = random.Next(1, 3);
+                this.AddChambers(anticipatedChamber, GameSystem.instance.normalChamberPrefab, numberOfNormalChambers);
+                this.AddChambers(anticipatedChamber, GameSystem.instance.treasureChamberPrefab);
+            }
+
         }
         else if (neighborsStructureDifficulty == "veryEasy")
         {
-            this.AddChambers(anticipatedChamber, GameSystem.instance.teleportationChamberPrefab);
-            this.AddChambers(this.allNeighborChambers.Last(), GameSystem.instance.treasureChamberPrefab);
+            this.AddChambers(anticipatedChamber, GameSystem.instance.treasureChamberPrefab);
+            this.AddChambers(allNeighborChambers.Last(), GameSystem.instance.teleportationChamberPrefab);
         }
     }
     public void GenerateNormalChamberNeighborsBasedOnDifficulty(Chamber anticipatedChamber)
@@ -136,17 +153,25 @@ public class StoryTeller : MonoBehaviour
         int randomNumberOfPossibleNeighborHoods;
         if (this.neighborsStructureDifficulty == "hard")
         {
-            randomNumberOfPossibleNeighborHoods = random.Next(1, 3);
-            if (randomNumberOfPossibleNeighborHoods == 1)
+            randomNumberOfPossibleNeighborHoods = random.Next(0, 100);
+            if (randomNumberOfPossibleNeighborHoods <= 10)
             {
                 this.AddChambers(anticipatedChamber, GameSystem.instance.bossChamberPrefab);
             }
-            else if (randomNumberOfPossibleNeighborHoods == 2)
+            else if (randomNumberOfPossibleNeighborHoods >= 11 && randomNumberOfPossibleNeighborHoods <= 40)
             {
                 numberOfMercenaryCamps = random.Next(1, 4);
                 this.AddChambers(anticipatedChamber, GameSystem.instance.mercenaryChamberPrefab, numberOfMercenaryCamps);
                 this.AddNextChambersToANumberOfPreviousChambers(numberOfMercenaryCamps,GameSystem.instance.bossChamberPrefab);
+                this.AddChambers(allNeighborChambers.Last(), GameSystem.instance.treasureChamberPrefab);
             }
+            else if (randomNumberOfPossibleNeighborHoods >= 41)
+            {
+                numberOfMercenaryCamps = random.Next(1, 4);
+                this.AddChambers(anticipatedChamber, GameSystem.instance.mercenaryChamberPrefab, numberOfMercenaryCamps);
+                this.AddNextChambersToANumberOfPreviousChambers(numberOfMercenaryCamps, GameSystem.instance.bossChamberPrefab);
+            }
+
         }
         else if (neighborsStructureDifficulty == "normal")
         {
@@ -167,14 +192,15 @@ public class StoryTeller : MonoBehaviour
             numberOfNormalChambers = random.Next(1, 2);
             AddChambers(anticipatedChamber,GameSystem.instance.normalChamberPrefab,numberOfNormalChambers);
 
-            randomNumberOfPossibleNeighborHoods = random.Next(1, 3);
-            if (randomNumberOfPossibleNeighborHoods == 1)
+            randomNumberOfPossibleNeighborHoods = random.Next(0, 100);
+            if (randomNumberOfPossibleNeighborHoods <= 10)
                 AddNextChambersToANumberOfPreviousChambersRandomly(numberOfNormalChambers,GameSystem.instance.bossChamberPrefab);
             
-            else if (randomNumberOfPossibleNeighborHoods == 2)
+            else if (randomNumberOfPossibleNeighborHoods >= 11)
                 AddNextChambersToANumberOfPreviousChambersRandomly(numberOfNormalChambers, GameSystem.instance.mercenaryChamberPrefab);
 
         }
+
         else if (neighborsStructureDifficulty == "easy")
         {
             numberOfNormalChambers = random.Next(1, 4);//first intended value was 1,5
@@ -182,29 +208,14 @@ public class StoryTeller : MonoBehaviour
         }
         else if (neighborsStructureDifficulty == "veryEasy")
             this.AddChambers(anticipatedChamber, GameSystem.instance.treasureChamberPrefab);
-        
     }
     public void GenerateTreasureChamberNeighborsBasedOnDifficulty(Chamber anticipatedChamber)
     {
-        if (this.neighborsStructureDifficulty == "hard")
-        {
-            int numberOfMercenaryCamps = random.Next(1, 4);
-            this.AddChambers(anticipatedChamber, GameSystem.instance.mercenaryChamberPrefab,numberOfMercenaryCamps);
-            this.AddNextChambersToANumberOfPreviousChambers(numberOfMercenaryCamps,GameSystem.instance.bossChamberPrefab);
-        }
-        else if (this.neighborsStructureDifficulty == "normal")
-        {
-            int randomPossibleNeighborHoods = random.Next(1, 2);
-            if (randomPossibleNeighborHoods == 1)
-                this.AddChambers(anticipatedChamber, GameSystem.instance.bossChamberPrefab);
-            
-            else if (randomPossibleNeighborHoods == 2)
-                this.AddChambers(anticipatedChamber, GameSystem.instance.mercenaryChamberPrefab);
-        }
-        else
-            anticipatedChamber.areNeighborsDescribed = true;
-        
+        int numberOfNormalChambers = random.Next(1, 4);
+        this.AddChambers(anticipatedChamber, GameSystem.instance.normalChamberPrefab, numberOfNormalChambers);
+
     }
+
     public void GenerateMercenaryCampNeighborsBasedOnDifficulty(Chamber anticipatedChamber)
     {
         if (neighborsStructureDifficulty == "hard")
@@ -214,10 +225,12 @@ public class StoryTeller : MonoBehaviour
         {
             int numberOfNormalChambers = random.Next(1, 4);
             this.AddChambers(anticipatedChamber, GameSystem.instance.normalChamberPrefab,numberOfNormalChambers);
+            
             this.AddNextChambersToANumberOfPreviousChambersRandomly(numberOfNormalChambers,GameSystem.instance.bossChamberPrefab);
         }
         else if (neighborsStructureDifficulty == "easy" || neighborsStructureDifficulty == "veryEasy")
             this.AddChambers(anticipatedChamber, GameSystem.instance.treasureChamberPrefab);
+
     }
 
 
@@ -227,7 +240,7 @@ public class StoryTeller : MonoBehaviour
     //}
     private void AddChambers(Chamber anticipatedChamber, RectangularChamber chamberPrefab, int count = 1)
     {
-        foreach (int C in Enumerable.Range(0, count + 1))
+        foreach (int C in Enumerable.Range(0, count))
         {
             RectangularChamber newNeighborChamber = Instantiate(chamberPrefab);
             this.DetermineRectangularChamberSize(newNeighborChamber);
@@ -235,8 +248,6 @@ public class StoryTeller : MonoBehaviour
             anticipatedChamber.neighborChambers.Add(newNeighborChamber);
             newNeighborChamber.neighborChambers.Add(anticipatedChamber);
         }
-
-        anticipatedChamber.areNeighborsDescribed = true;
     }
     private void AddNextChambersToANumberOfPreviousChambers(int countOfPreviousChambers, RectangularChamber chamberPrefab, int count = 1)//adds a number of chambers to a number of previous chambers iterating from the end. then sets previous chambers as "neighbors described".
     {
@@ -255,7 +266,7 @@ public class StoryTeller : MonoBehaviour
             }
         }
     }
-    private void AddNextChambersToANumberOfPreviousChambersRandomly(int numberOfPreviousChambers, RectangularChamber chamberPrefab, int count = 1)//adds next chambers to a number of randomly chosen past chambers. i might need to make another function that adds a number of randomly selected next chambers to a number of randomly selected past chambers
+    private void AddNextChambersToANumberOfPreviousChambersRandomly(int numberOfPreviousChambers, RectangularChamber chamberPrefab, int count = 1)//adds next chambers(number depends on the count) to a number of randomly chosen past chamberss. i might need to make another function that adds a number of randomly selected next chambers to a number of randomly selected past chambers
     {
         var random = new Random();
         ArrayList indexesOfChosenObjects = ChooseRandomly(numberOfPreviousChambers, random.Next(1,numberOfPreviousChambers + 1));
