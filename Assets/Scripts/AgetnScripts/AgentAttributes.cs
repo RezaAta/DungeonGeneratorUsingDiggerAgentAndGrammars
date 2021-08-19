@@ -28,7 +28,7 @@ public class AgentAttributes : MonoBehaviour
 
     public int power = 1;
     public int level = 1;
-    public float movementSpeed = 2f;
+    public float movementSpeed = 4f;
     public double agility = 1; //base speed of casting spells and attacking
     public List<GameObject> items = new List<GameObject>();
     public double winRatio = -1;

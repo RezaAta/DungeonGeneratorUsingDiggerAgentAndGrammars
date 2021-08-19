@@ -2672,7 +2672,7 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: f601a107b99d6f747b404182e11b997d, type: 2}
   skinnedMeshRenderer: {fileID: 5930651934562835495}
   agentCollider: {fileID: 0}
-  animator: {fileID: 0}
+  animator: {fileID: 4118330166537496281}
   runtimeAnimatorController: {fileID: 9100000, guid: 86994ed05ee6301459c267a08827ee49,
     type: 2}
   agent: {fileID: 0}
@@ -3048,6 +3048,7 @@ GameObject:
   - component: {fileID: 5930651934574693639}
   - component: {fileID: 4006837235214759630}
   - component: {fileID: 2646179486630449257}
+  - component: {fileID: 4118330166537496281}
   m_Layer: 0
   m_Name: arthur_01
   m_TagString: Untagged
@@ -3104,6 +3105,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 4006837235214759630}
+--- !u!95 &4118330166537496281
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5930651934574334247}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 80212f1697003ec4d8b59bdcb908a1fc, type: 3}
+  m_Controller: {fileID: 9100000, guid: 86994ed05ee6301459c267a08827ee49, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &5930651934574334249
 GameObject:
   m_ObjectHideFlags: 0

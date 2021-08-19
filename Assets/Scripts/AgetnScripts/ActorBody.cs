@@ -20,12 +20,14 @@ public class ActorBody : MonoBehaviour
             this.agentCollider.sharedMesh = this.skinnedMeshRenderer.sharedMesh;
         }
 
-        if (this.animator == null)
-        {
-            this.animator = this.gameObject.AddComponent<Animator>();
-            this.animator.runtimeAnimatorController = this.runtimeAnimatorController;
-            
-        }
+        //if (this.animator == null)
+        //{
+        //    this.animator = this.gameObject.AddComponent<Animator>();
+        //    this.animator.runtimeAnimatorController = this.runtimeAnimatorController;
+        //}
+        //else
+        //    this.animator.runtimeAnimatorController = this.runtimeAnimatorController;
+
 
         this.material = this.gameObject.GetComponent<Material>();
         this.skinnedMeshRenderer = this.gameObject.GetComponent<SkinnedMeshRenderer>();
