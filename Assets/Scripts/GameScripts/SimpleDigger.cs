@@ -11,7 +11,7 @@ using Object = System.Object;
 
 
 
-//simple digger with simple desires
+//simple digger with simple pleasures
 public class SimpleDigger : Block
 {
     public enum Direction

@@ -5,7 +5,6 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Random = System.Random;
-//TODO: set neighbors of chambers that are before the end chamber as Generated.
 
 public class StoryTeller : MonoBehaviour
 {
@@ -15,6 +14,7 @@ public class StoryTeller : MonoBehaviour
     public List<Hallway> allNewHallways;
     public List<Tuple<HumanoidAgent, Chamber>> listOfAnticipatedAgentsAndChambers;
     public string neighborsStructureDifficulty;
+    public bool dynamicDifficultyAdjustment;
     public bool deadEnd;
     private Random random = new Random();
 
@@ -36,7 +36,8 @@ public class StoryTeller : MonoBehaviour
 
     public void DetermineChambersTypes(Tuple<HumanoidAgent, Chamber> agentAndChamber)
     {
-        this.DetermineDifficulty(agentAndChamber.Item1);
+        if (dynamicDifficultyAdjustment)
+            this.DetermineDifficulty(agentAndChamber.Item1);
         
         Chamber PreviousChamber = agentAndChamber.Item1.statusUpdater.locationLog[1].GetComponent<Chamber>();
 
@@ -64,8 +65,6 @@ public class StoryTeller : MonoBehaviour
             int numberOfNormalChambers = random.Next(1,4);//First intended value was 1,5
             this.AddChambers(anticipatedChamber, GameSystem.instance.normalChamberPrefab,numberOfNormalChambers);
         }
-
-        anticipatedChamber.areNeighborsDescribed = true;
     }
 
     public void DetermineDifficulty(HumanoidAgent agent)
@@ -154,6 +153,7 @@ public class StoryTeller : MonoBehaviour
         if (this.neighborsStructureDifficulty == "hard")
         {
             randomNumberOfPossibleNeighborHoods = random.Next(0, 100);
+            Debug.Log(randomNumberOfPossibleNeighborHoods);
             if (randomNumberOfPossibleNeighborHoods <= 10)
             {
                 this.AddChambers(anticipatedChamber, GameSystem.instance.bossChamberPrefab);
@@ -162,8 +162,8 @@ public class StoryTeller : MonoBehaviour
             {
                 numberOfMercenaryCamps = random.Next(1, 4);
                 this.AddChambers(anticipatedChamber, GameSystem.instance.mercenaryChamberPrefab, numberOfMercenaryCamps);
-                this.AddNextChambersToANumberOfPreviousChambers(numberOfMercenaryCamps,GameSystem.instance.bossChamberPrefab);
-                this.AddChambers(allNeighborChambers.Last(), GameSystem.instance.treasureChamberPrefab);
+                this.AddNextChambersToANumberOfPreviousChambers(numberOfMercenaryCamps, GameSystem.instance.treasureChamberPrefab);
+                this.AddChambers(allNeighborChambers.Last(), GameSystem.instance.bossChamberPrefab);
             }
             else if (randomNumberOfPossibleNeighborHoods >= 41)
             {
@@ -189,7 +189,7 @@ public class StoryTeller : MonoBehaviour
             //numberOfMercenaryCamps = random.Next(1, 4);
             //this.AddChambers(anticipatedChamber, GameSystem.instance.mercenaryChamberPrefab,numberOfMercenaryCamps);
             //i don't know why i made those changes, now im refactoring my code and this seems stupid. next time i should explain further why i do something.
-            numberOfNormalChambers = random.Next(1, 2);
+            numberOfNormalChambers = random.Next(1, 4);
             AddChambers(anticipatedChamber,GameSystem.instance.normalChamberPrefab,numberOfNormalChambers);
 
             randomNumberOfPossibleNeighborHoods = random.Next(0, 100);
@@ -248,17 +248,18 @@ public class StoryTeller : MonoBehaviour
             anticipatedChamber.neighborChambers.Add(newNeighborChamber);
             newNeighborChamber.neighborChambers.Add(anticipatedChamber);
         }
+        anticipatedChamber.areNeighborsDescribed = true;
     }
     private void AddNextChambersToANumberOfPreviousChambers(int countOfPreviousChambers, RectangularChamber chamberPrefab, int count = 1)//adds a number of chambers to a number of previous chambers iterating from the end. then sets previous chambers as "neighbors described".
     {
-        int indexOfLastPreviousChamber = this.allNeighborChambers.Count - 1;
-        int indexOfFirstPreviousChamber = this.allNeighborChambers.Count - count - 1;
+        int indexOfLastChamberInPreviousLayer = this.allNeighborChambers.Count - 1;
+        int indexOfFirstChamberInPreviousLayer = this.allNeighborChambers.Count - countOfPreviousChambers;
         for (int c = 0; c < count; c++)
         {
             RectangularChamber newNeighborChamber = Instantiate(chamberPrefab);
             this.DetermineRectangularChamberSize(newNeighborChamber);
             this.allNeighborChambers.Add(newNeighborChamber);
-            for (int i = indexOfLastPreviousChamber; i <= indexOfFirstPreviousChamber; i--)
+            for (int i = indexOfLastChamberInPreviousLayer; i >= indexOfFirstChamberInPreviousLayer; i--)
             {
                 newNeighborChamber.neighborChambers.Add(this.allNeighborChambers[i]);
                 this.allNeighborChambers[i].neighborChambers.Add(newNeighborChamber);
@@ -278,9 +279,9 @@ public class StoryTeller : MonoBehaviour
             this.allNeighborChambers.Add(newNeighborChamber);
             foreach (int previousChamberIndex in indexesOfChosenObjects)
             {
+                newNeighborChamber.neighborChambers.Add(this.allNeighborChambers[previousChamberIndex]);
                 this.allNeighborChambers[previousChamberIndex].neighborChambers.Add(newNeighborChamber);
                 this.allNeighborChambers[previousChamberIndex].areNeighborsDescribed = true;
-                newNeighborChamber.neighborChambers.Add(this.allNeighborChambers[previousChamberIndex]);
             }
         }
     }
@@ -443,6 +444,7 @@ public class StoryTeller : MonoBehaviour
 
         this.allNeighborChambers = new List<Chamber>();
         this.neighborsStructureDifficulty = "";
+        this.dynamicDifficultyAdjustment = true;
         this.deadEnd = false;
     }
     
